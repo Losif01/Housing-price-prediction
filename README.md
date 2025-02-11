@@ -1,7 +1,7 @@
 # Housing price prediction
 
 ## Overview 
-This Data science project analyses the [Housing Price Dataset]([House Prices - Advanced Regression Techniques | Kaggle](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques)), predicting the `SalePrice` based on all other features in the dataset
+This Data science project analyses the [House Prices - Advanced Regression Techniques | Kaggle](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques), predicting the `SalePrice` based on all other features in the dataset
 **Technologies used:**
 - `python 3.12`
 - `matplotlib`

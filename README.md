@@ -125,7 +125,7 @@ Given a dataset ${(xi,yi)}i=1n\{(x_i, y_i)\}_{i=1}^{n}$, where:
 
 We aim to predict $y^i\hat{y}_i$ using an ensemble of KK regression trees:
 
-$$y^i=∑k=1Kfk(xi)\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)$$
+$y^i=∑k=1Kfk(xi)\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)$
 
 where $fk(x)$ $f_k(x)$ represents the $k^{th}$ regression tree.
 
@@ -133,8 +133,7 @@ where $fk(x)$ $f_k(x)$ represents the $k^{th}$ regression tree.
 
 XGBoost optimizes the following objective function:
 
-$$L(Θ)=∑i=1nl(yi,y^i)+∑k=1KΩ(fk)\mathcal{L}(\Theta) = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{k=1}^{K} \Omega(f_k)
-$$
+$L(Θ)=∑i=1nl(yi,y^i)+∑k=1KΩ(fk)\mathcal{L}(\Theta) = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{k=1}^{K} \Omega(f_k)$
 where:
 
 - $l(yi,y^i) l(y_i, \hat{y}_i)$ is a differentiable convex loss function that measures the difference between the actual and predicted values (e.g., Mean Squared Error).
@@ -165,9 +164,8 @@ where:
 ### **Tree Growth & Optimization**
 
 At each iteration, a new tree is added to the model to minimize the residuals. The weights of the tree are computed using the second-order Taylor expansion:
-$
-gi=∂l(yi,y^i)∂y^i,hi=∂2l(yi,y^i)∂y^i2g_i = \frac{\partial l(y_i, \hat{y}_i)}{\partial \hat{y}_i}, \quad h_i = \frac{\partial^2 l(y_i, \hat{y}_i)}{\partial \hat{y}_i^2}
-$
+
+$gi=∂l(yi,y^i)∂y^i,hi=∂2l(yi,y^i)∂y^i2g_i = \frac{\partial l(y_i, \hat{y}_i)}{\partial \hat{y}_i}, \quad h_i = \frac{\partial^2 l(y_i, \hat{y}_i)}{\partial \hat{y}_i^2}$
 where:
 
 - $g_i$ is the gradient (first derivative of loss).

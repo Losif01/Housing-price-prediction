@@ -118,7 +118,7 @@ XGBRegressor is a gradient-boosted decision tree (GBDT) algorithm for regression
 
 ## 1. **Objective Function**
 The regularized objective combines loss and tree complexity:  
-$\text{Obj}(\theta)=\sum_{i=1}^n L(y_i,\hat{y}_i)$ $+ \ sum_{k=1}^K\Omega(f_k)$  
+$\text{Obj}(\theta)=\sum_{i=1}^n L(y_i,\hat{y_i})+ \ sum_{k=1}^K\Omega(f_k)$  
 - **Loss Term**: For regression, the squared error is commonly used:  
   $L(y_i, \hat{y}_i) = \frac{1}{2}(y_i - \hat{y}_i)^2$  
 - **Regularization Term**: Penalizes tree complexity:  

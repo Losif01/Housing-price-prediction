@@ -107,94 +107,84 @@ for col, mapping in ordinal_mappings.items():
 ---
 
 ## **Step 3: Model Building _`XGBregressor`_  
+# XGBRegressor Functionality
 
-## **Introduction**  
-`XGBRegressor` is a regression model from the XGBoost (Extreme Gradient Boosting) library, optimized for speed and performance. It builds an ensemble of decision trees iteratively to minimize a loss function.  
+XGBRegressor is a gradient boosting implementation designed for regression tasks. It builds an ensemble of decision trees sequentially, optimizing a user-defined loss function with regularization. Below is an explanation of its key components and mathematical formulation.
 
-## **Core Concept**  
-XGBoost is a boosting algorithm that builds models additively by minimizing a differentiable loss function using gradient descent.  
+## Key Components
 
-### **Mathematical Formulation**  
-Given a dataset `{(x_i, y_i)}_{i=1}^{n}`, where:  
-- `x_i` is the feature vector for the `i`th data point,  
-- `y_i` is the target value.  
+- **Gradient Boosting**: Builds trees sequentially, each correcting errors from previous trees.
+- **Loss Function**: Typically squared error (`reg:squarederror`) for regression.
+- **Regularization**: Includes L1 (LASSO) and L2 (Ridge) penalties on leaf weights, and complexity control via tree structure.
+- **Additive Training**: Predictions are the sum of outputs from all trees.
 
-We aim to predict `ŷ_i` using an ensemble of `K` regression trees:  
+## Mathematical Formulation
 
-`ŷ_i = Σ_{k=1}^{K} f_k(x_i)`,  
+### Objective Function
+The objective function combines loss and regularization:
+$$
+\text{Obj}(\theta) = \sum_{i=1}^n L(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)
+$$
+- \( L(y_i, \hat{y}_i) \): Loss function (e.g., squared error: \( \frac{1}{2}(y_i - \hat{y}_i)^2 \)).
+- \( \Omega(f_k) \): Regularization term for tree \( f_k \).
+- \( K \): Total number of trees.
 
-where `f_k(x)` represents the `k`th regression tree.  
+### Additive Model
+At iteration \( t \), the prediction is:
+$$
+\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)
+$$
+- \( \eta \): Learning rate (shrinkage to prevent overfitting).
+- \( f_t \): Tree added at iteration \( t \).
 
-### **Objective Function**  
-XGBoost optimizes the following objective function:  
+### Taylor Approximation
+The loss is approximated using Taylor expansion up to the second order:
+$$
+\text{Obj}^{(t)} \approx \sum_{i=1}^n \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t)
+$$
+- \( g_i = \partial_{\hat{y}^{(t-1)}} L(y_i, \hat{y}^{(t-1)}) \): First-order gradient.
+- \( h_i = \partial_{\hat{y}^{(t-1)}}^2 L(y_i, \hat{y}^{(t-1)}) \): Second-order Hessian.
 
-`L(Θ) = Σ_{i=1}^{n} l(y_i, ŷ_i) + Σ_{k=1}^{K} Ω(f_k)`,  
+For squared error loss:
+$$
+g_i = \hat{y}^{(t-1)} - y_i, \quad h_i = 1
+$$
 
-where:  
-- `l(y_i, ŷ_i)` is a differentiable convex loss function (e.g., Mean Squared Error).  
-- `Ω(f_k)` is a regularization term to prevent overfitting.  
+### Regularization
+For a tree with \( T \) leaves and weights \( w \):
+$$
+\Omega(f_t) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2 + \alpha \sum_{j=1}^T |w_j|
+$$
+- \( \gamma \): Minimum loss reduction to split a node.
+- \( \lambda \): L2 regularization on leaf weights.
+- \( \alpha \): L1 regularization on leaf weights.
 
-#### **Loss Function (Squared Error for Regression)**  
-For regression, the most common loss function is the squared error:  
+### Optimal Leaf Weight
+For leaf \( j \) with instance set \( I_j \), the optimal weight is:
+$$
+w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
+$$
 
-`l(y_i, ŷ_i) = (y_i - ŷ_i)^2`,  
+### Split Criteria
+The gain for splitting a node into left (\( L \)) and right (\( R \)) children:
+$$
+\text{Gain} = \frac{1}{2} \left[ \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda} \right] - \gamma
+$$
+- \( G_{L/R} = \sum_{i \in I_{L/R}} g_i \)
+- \( H_{L/R} = \sum_{i \in I_{L/R}} h_i \)
 
-which leads to gradient boosting minimizing:  
+A split is made if the gain is positive.
 
-`Σ_{i=1}^{n} (y_i - ŷ_i)^2 + Σ_{k=1}^{K} Ω(f_k)`.  
+## Key Hyperparameters
+| Parameter | Description |
+|-----------|-------------|
+| `eta` (η) | Learning rate (shrinks tree weights). |
+| `gamma` (γ) | Minimum loss reduction for a split. |
+| `lambda` (λ) | L2 regularization on leaf weights. |
+| `alpha` (α) | L1 regularization on leaf weights. |
+| `max_depth` | Maximum tree depth. |
+| `subsample` | Fraction of samples used per tree. |
 
-#### **Regularization Term**  
-To control model complexity, XGBoost includes a regularization term:  
-
-`Ω(f) = γT + (1/2) λ Σ_{j} w_j^2`,  
-
-where:  
-- `T` is the number of leaf nodes in the tree.  
-- `w_j` is the weight of leaf `j`.  
-- `γ` and `λ` are regularization parameters.  
-
-### **Tree Growth & Optimization**  
-At each iteration, a new tree is added to the model to minimize residuals. The weights of the tree are computed using the second-order Taylor expansion:  
-
-`g_i = ∂ l(y_i, ŷ_i) / ∂ ŷ_i,`  
-`h_i = ∂² l(y_i, ŷ_i) / ∂ ŷ_i²,`  
-
-where:  
-- `g_i` is the gradient (first derivative of loss).  
-- `h_i` is the Hessian (second derivative of loss).  
-
-For each leaf `j`, the optimal weight `w_j` is given by:  
-
-`w_j* = - (Σ_{i ∈ I_j} g_i) / (Σ_{i ∈ I_j} h_i + λ)`,  
-
-where `I_j` represents the set of samples in leaf `j`.  
-
-### **Final Prediction**  
-The final prediction is computed as:  
-
-`ŷ_i = F_K(x_i) = F_{K-1}(x_i) + f_K(x_i)`,  
-
-where `F_K(x)` is the cumulative model up to the `K`th tree.  
-
-## **Hyperparameters of `XGBRegressor`**  
-Key hyperparameters include:  
-- `n_estimators`: Number of trees.  
-- `learning_rate` (`η`): Step size shrinkage.  
-- `max_depth`: Maximum depth of trees.  
-- `lambda`: L2 regularization term.  
-- `gamma`: Minimum loss reduction for a split.  
-- `subsample`: Fraction of samples used per tree.  
-- `colsample_bytree`: Fraction of features used per tree.  
-
-## **Conclusion**  
-`XGBRegressor` is a powerful and efficient gradient boosting algorithm designed for regression tasks. It minimizes a loss function using additive tree models while incorporating regularization for better generalization.  
-
----
-
-This version should now be fully compatible with GitHub Markdown preview. Let me know if you need any tweaks! 🚀
-
-## **Conclusion**  
-`XGBRegressor` is a powerful and efficient gradient boosting algorithm designed for regression tasks. It minimizes a loss function using additive tree models while incorporating regularization for better generalization.  
-
----
+## Conclusion
+XGBRegressor optimizes a regularized objective function using gradient boosting. It builds trees greedily, selecting splits that maximize gain, and applies shrinkage to reduce overfitting. The mathematical formulation leverages Taylor expansion and regularization to balance model complexity and accuracy.
 

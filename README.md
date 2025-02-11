@@ -118,7 +118,7 @@ XGBRegressor is a gradient-boosted decision tree (GBDT) algorithm for regression
 
 ## 1. **Objective Function**
 The regularized objective combines loss and tree complexity:  
-$\text{Obj}(\theta) = \sum_{i=1}^n L(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)$  
+$\text{Obj}(\theta)=\sum_{i=1}^n L(y_i,\hat{y}_i)$ $+ \ sum_{k=1}^K\Omega(f_k)$  
 - **Loss Term**: For regression, the squared error is commonly used:  
   $L(y_i, \hat{y}_i) = \frac{1}{2}(y_i - \hat{y}_i)^2$  
 - **Regularization Term**: Penalizes tree complexity:  
@@ -130,34 +130,34 @@ $\text{Obj}(\theta) = \sum_{i=1}^n L(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)$
 ---
 
 ## 2. **Additive Training**
-Predictions are updated iteratively at each boosting step $ t $:  
-$ \hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i) $  
-- $ \eta $: Learning rate (shrinkage factor)  
-- $ f_t $: Weak learner (tree) added at step $ t $.
+Predictions are updated iteratively at each boosting step $t$:  
+$\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$  
+- $\eta$: Learning rate (shrinkage factor)  
+- $f_t$: Weak learner (tree) added at step $t$.
 
 ---
 
 ## 3. **Taylor Approximation**
 The loss is approximated using gradients ($ g_i $) and hessians ($ h_i $):  
-$ \text{Obj}^{(t)} \approx \sum_{i=1}^n \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) $  
+$\text{Obj}^{(t)} \approx \sum_{i=1}^n \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t) $  
 - **Gradients** (1st-order derivative for squared error):  
-  $ g_i = \frac{\partial L}{\partial \hat{y}^{(t-1)}} = \hat{y}^{(t-1)} - y_i $  
+  $g_i = \frac{\partial L}{\partial \hat{y}^{(t-1)}} = \hat{y}^{(t-1)} - y_i$  
 - **Hessians** (2nd-order derivative for squared error):  
-  $ h_i = \frac{\partial^2 L}{\partial (\hat{y}^{(t-1)})^2} = 1 $  
+  $h_i = \frac{\partial^2 L}{\partial (\hat{y}^{(t-1)})^2} = 1$  
 
 ---
 
 ## 4. **Optimal Leaf Weight**
-For leaf $ j $ with instance set $ I_j $:  
-$ w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda} $
+For leaf $j$ with instance set $I_j$:  
+$w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}$
 
 ---
 
 ## 5. **Split Gain Formula**
 The gain for splitting a node into left ($ L $) and right ($ R $) subsets:  
-$ \text{Gain} = \frac{1}{2} \left( \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda} \right) - \gamma $  
-- $ G_L = \sum_{i \in I_L} g_i $, $ G_R = \sum_{i \in I_R} g_i $  
-- $ H_L = \sum_{i \in I_L} h_i $, $ H_R = \sum_{i \in I_R} h_i $  
+$\text{Gain} = \frac{1}{2} \left( \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda} \right) - \gamma$  
+- $G_L = \sum_{i \in I_L} g_i$, $G_R = \sum_{i \in I_R} g_i$  
+- $H_L = \sum_{i \in I_L} h_i$, $H_R = \sum_{i \in I_R} h_i$  
 
 ---
 

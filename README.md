@@ -107,84 +107,95 @@ for col, mapping in ordinal_mappings.items():
 ---
 
 ## **Step 3: Model Building _`XGBregressor`_  
+Here’s the explanation of **XGBRegressor** using MathJax-compatible equations for proper rendering in GitHub Markdown:
+
+---
+
 # XGBRegressor Functionality
 
-XGBRegressor is a gradient boosting implementation designed for regression tasks. It builds an ensemble of decision trees sequentially, optimizing a user-defined loss function with regularization. Below is an explanation of its key components and mathematical formulation.
+XGBRegressor is a gradient-boosted decision tree (GBDT) algorithm for regression. Below are its core components and equations:
 
-## Key Components
+---
 
-- **Gradient Boosting**: Builds trees sequentially, each correcting errors from previous trees.
-- **Loss Function**: Typically squared error (`reg:squarederror`) for regression.
-- **Regularization**: Includes L1 (LASSO) and L2 (Ridge) penalties on leaf weights, and complexity control via tree structure.
-- **Additive Training**: Predictions are the sum of outputs from all trees.
-
-## Mathematical Formulation
-
-### Objective Function
-The objective function combines loss and regularization:
+## 1. **Objective Function**
+The regularized objective combines loss and tree complexity:
 $$
 \text{Obj}(\theta) = \sum_{i=1}^n L(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)
 $$
-- \( L(y_i, \hat{y}_i) \): Loss function (e.g., squared error: \( \frac{1}{2}(y_i - \hat{y}_i)^2 \)).
-- \( \Omega(f_k) \): Regularization term for tree \( f_k \).
-- \( K \): Total number of trees.
+- **Loss Term**: For regression, the squared error is commonly used:
+  $$
+  L(y_i, \hat{y}_i) = \frac{1}{2}(y_i - \hat{y}_i)^2
+  $$
+- **Regularization Term**: Penalizes tree complexity:
+  $$
+  \Omega(f_k) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2 + \alpha \sum_{j=1}^T |w_j|
+  $$
+  - \( T \): Number of leaves in the tree  
+  - \( w_j \): Weight of leaf \( j \)  
+  - \( \gamma, \lambda, \alpha \): Regularization hyperparameters.
 
-### Additive Model
-At iteration \( t \), the prediction is:
+---
+
+## 2. **Additive Training**
+Predictions are updated iteratively at each boosting step \( t \):
 $$
 \hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)
 $$
-- \( \eta \): Learning rate (shrinkage to prevent overfitting).
-- \( f_t \): Tree added at iteration \( t \).
+- \( \eta \): Learning rate (shrinkage factor)  
+- \( f_t \): Weak learner (tree) added at step \( t \).
 
-### Taylor Approximation
-The loss is approximated using Taylor expansion up to the second order:
+---
+
+## 3. **Taylor Approximation**
+The loss is approximated using gradients (\( g_i \)) and hessians (\( h_i \)):
 $$
 \text{Obj}^{(t)} \approx \sum_{i=1}^n \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t)
 $$
-- \( g_i = \partial_{\hat{y}^{(t-1)}} L(y_i, \hat{y}^{(t-1)}) \): First-order gradient.
-- \( h_i = \partial_{\hat{y}^{(t-1)}}^2 L(y_i, \hat{y}^{(t-1)}) \): Second-order Hessian.
+- **Gradients** (1st-order derivative for squared error):
+  $$
+  g_i = \frac{\partial L}{\partial \hat{y}^{(t-1)}} = \hat{y}^{(t-1)} - y_i
+  $$
+- **Hessians** (2nd-order derivative for squared error):
+  $$
+  h_i = \frac{\partial^2 L}{\partial (\hat{y}^{(t-1)})^2} = 1
+  $$
 
-For squared error loss:
-$$
-g_i = \hat{y}^{(t-1)} - y_i, \quad h_i = 1
-$$
+---
 
-### Regularization
-For a tree with \( T \) leaves and weights \( w \):
-$$
-\Omega(f_t) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^T w_j^2 + \alpha \sum_{j=1}^T |w_j|
-$$
-- \( \gamma \): Minimum loss reduction to split a node.
-- \( \lambda \): L2 regularization on leaf weights.
-- \( \alpha \): L1 regularization on leaf weights.
-
-### Optimal Leaf Weight
-For leaf \( j \) with instance set \( I_j \), the optimal weight is:
+## 4. **Optimal Leaf Weight**
+For leaf \( j \) with instance set \( I_j \):
 $$
 w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
 $$
 
-### Split Criteria
-The gain for splitting a node into left (\( L \)) and right (\( R \)) children:
+---
+
+## 5. **Split Gain Formula**
+The gain for splitting a node into left (\( L \)) and right (\( R \)) subsets:
 $$
-\text{Gain} = \frac{1}{2} \left[ \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda} \right] - \gamma
+\text{Gain} = \frac{1}{2} \left( \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda} \right) - \gamma
 $$
-- \( G_{L/R} = \sum_{i \in I_{L/R}} g_i \)
-- \( H_{L/R} = \sum_{i \in I_{L/R}} h_i \)
+- \( G_L = \sum_{i \in I_L} g_i \), \( G_R = \sum_{i \in I_R} g_i \)  
+- \( H_L = \sum_{i \in I_L} h_i \), \( H_R = \sum_{i \in I_R} h_i \).
 
-A split is made if the gain is positive.
+---
 
-## Key Hyperparameters
-| Parameter | Description |
-|-----------|-------------|
-| `eta` (η) | Learning rate (shrinks tree weights). |
-| `gamma` (γ) | Minimum loss reduction for a split. |
-| `lambda` (λ) | L2 regularization on leaf weights. |
-| `alpha` (α) | L1 regularization on leaf weights. |
-| `max_depth` | Maximum tree depth. |
-| `subsample` | Fraction of samples used per tree. |
+## 6. **Key Hyperparameters**
+| Parameter       | Math Symbol | Description                          |
+|-----------------|-------------|--------------------------------------|
+| `learning_rate` | \( \eta \)  | Shrinks tree contributions           |
+| `gamma`         | \( \gamma \)| Minimum loss reduction for a split   |
+| `lambda`        | \( \lambda \)| L2 regularization on leaf weights  |
+| `alpha`         | \( \alpha \) | L1 regularization on leaf weights  |
+| `max_depth`     | -           | Maximum depth of a tree              |
+| `subsample`     | -           | Fraction of samples used per tree    |
 
-## Conclusion
-XGBRegressor optimizes a regularized objective function using gradient boosting. It builds trees greedily, selecting splits that maximize gain, and applies shrinkage to reduce overfitting. The mathematical formulation leverages Taylor expansion and regularization to balance model complexity and accuracy.
+---
 
+## Summary
+XGBRegressor greedily builds trees by:
+1. Approximating the loss with Taylor expansion,  
+2. Calculating optimal leaf weights,  
+3. Selecting splits that maximize gain (reducing loss while penalizing complexity).  
+
+The equations above define its optimization process, balancing bias-variance tradeoff through regularization.

@@ -16,11 +16,7 @@ This Data science project analyses the [House Prices - Advanced Regression Techn
 - Differentiating between object and numeric values for their corresponding suitable data cleaning technique 
 - Plotted the numeric data correlation with the target column `SalePrice`
 - Plotted a frequency histogram for each numeric column in the dataset
-![[Pasted image 20250211205718.png]]
-
 - Created a Correlation `Heatmap` 
-![[Pasted image 20250211205635.png]]
-
 - Created a function to find all null values in a column, which was useful in the long run
 ```python
 def getMissingValues(df):

@@ -122,18 +122,14 @@ Given a dataset $\{(x_i, y_i)\}_{i=1}^{n}$, where:
 
 We aim to predict $\hat{y}_i$ using an ensemble of $K$ regression trees:
 
-$$
-\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)
-$$
+$\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)$
 
 where $f_k(x)$ represents the $k^{th}$ regression tree.
 
 ### **Objective Function**  
 XGBoost optimizes the following objective function:
 
-$$
-\mathcal{L}(\Theta) = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{k=1}^{K} \Omega(f_k)
-$$
+$\mathcal{L}(\Theta) = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{k=1}^{K} \Omega(f_k)$
 
 where:  
 - $l(y_i, \hat{y}_i)$ is a differentiable convex loss function (e.g., Mean Squared Error).  
@@ -142,22 +138,16 @@ where:
 #### **Loss Function (Squared Error for Regression)**  
 For regression, the most common loss function is the squared error:
 
-$$
-l(y_i, \hat{y}_i) = (y_i - \hat{y}_i)^2
-$$
+$l(y_i, \hat{y}_i) = (y_i - \hat{y}_i)^2$
 
 which leads to gradient boosting minimizing:
 
-$$
-\sum_{i=1}^{n} (y_i - \hat{y}_i)^2 + \sum_{k=1}^{K} \Omega(f_k)
-$$
+$\sum_{i=1}^{n} (y_i - \hat{y}_i)^2 + \sum_{k=1}^{K} \Omega(f_k)$
 
 #### **Regularization Term**  
 To control model complexity, XGBoost includes a regularization term:
 
-$$
-\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j} w_j^2
-$$
+$\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j} w_j^2$
 
 where:  
 - $T$ is the number of leaf nodes in the tree.  
@@ -167,9 +157,7 @@ where:
 ### **Tree Growth & Optimization**  
 At each iteration, a new tree is added to the model to minimize residuals. The weights of the tree are computed using the second-order Taylor expansion:
 
-$$
-g_i = \frac{\partial l(y_i, \hat{y}_i)}{\partial \hat{y}_i}, \quad h_i = \frac{\partial^2 l(y_i, \hat{y}_i)}{\partial \hat{y}_i^2}
-$$
+$g_i = \frac{\partial l(y_i, \hat{y}_i)}{\partial \hat{y}_i}, \quad h_i = \frac{\partial^2 l(y_i, \hat{y}_i)}{\partial \hat{y}_i^2}$
 
 where:  
 - $g_i$ is the gradient (first derivative of loss).  
@@ -177,18 +165,14 @@ where:
 
 For each leaf $j$, the optimal weight $w_j$ is given by:
 
-$$
-w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
-$$
+$w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}$
 
 where $I_j$ represents the set of samples in leaf $j$.
 
 ### **Final Prediction**  
 The final prediction is computed as:
 
-$$
-\hat{y}_i = F_{K}(x_i) = F_{K-1}(x_i) + f_K(x_i)
-$$
+$\hat{y}_i = F_{K}(x_i) = F_{K-1}(x_i) + f_K(x_i)$
 
 where $F_K(x)$ is the cumulative model up to the $K^{th}$ tree.
 

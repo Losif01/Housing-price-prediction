@@ -125,7 +125,7 @@ Given a dataset ${(xi,yi)}i=1n\{(x_i, y_i)\}_{i=1}^{n}$, where:
 
 We aim to predict $y^i\hat{y}_i$ using an ensemble of KK regression trees:
 
-$y^i=∑k=1Kfk(xi)\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)$
+$y^i=∑k=1Kfk(xi)\hat{y}_i=\sum_{k=1}^{K} f_k(x_i)$
 
 where $fk(x)$ $f_k(x)$ represents the $k^{th}$ regression tree.
 

@@ -160,10 +160,10 @@ $\text{Gain} = \frac{1}{2} \left( \frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R
 ## 6. **Key Hyperparameters**
 | Parameter       | Math Symbol | Description                          |
 |-----------------|-------------|--------------------------------------|
-| `learning_rate` | $ \eta $    | Shrinks tree contributions           |
-| `gamma`         | $ \gamma $  | Minimum loss reduction for a split   |
-| `lambda`        | $ \lambda $ | L2 regularization on leaf weights   |
-| `alpha`         | $ \alpha $  | L1 regularization on leaf weights   |
+| `learning_rate` | $\eta$    | Shrinks tree contributions           |
+| `gamma`         | $\gamma$  | Minimum loss reduction for a split   |
+| `lambda`        | $\lambda$ | L2 regularization on leaf weights   |
+| `alpha`         | $\alpha$  | L1 regularization on leaf weights   |
 | `max_depth`     | -           | Maximum depth of a tree              |
 | `subsample`     | -           | Fraction of samples used per tree    |
 

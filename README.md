@@ -108,83 +108,90 @@ for col, mapping in ordinal_mappings.items():
 
 ## **Step 3: Model Building _`XGBregressor`_  
 
-
 ## **Introduction**  
-`XGBRegressor` is a regression model from the XGBoost (Extreme Gradient Boosting) library, optimized for speed and performance. It builds an ensemble of decision trees iteratively to minimize a loss function.
+`XGBRegressor` is a regression model from the XGBoost (Extreme Gradient Boosting) library, optimized for speed and performance. It builds an ensemble of decision trees iteratively to minimize a loss function.  
 
 ## **Core Concept**  
-XGBoost is a boosting algorithm that builds models additively by minimizing a differentiable loss function using gradient descent.
+XGBoost is a boosting algorithm that builds models additively by minimizing a differentiable loss function using gradient descent.  
 
 ### **Mathematical Formulation**  
-Given a dataset $\{(x_i, y_i)\}_{i=1}^{n}$, where:  
-- $x_i$ is the feature vector for the $i^{th}$ data point,  
-- $y_i$ is the target value.  
+Given a dataset `{(x_i, y_i)}_{i=1}^{n}`, where:  
+- `x_i` is the feature vector for the `i`th data point,  
+- `y_i` is the target value.  
 
-We aim to predict $\hat{y}_i$ using an ensemble of $K$ regression trees:
+We aim to predict `ŷ_i` using an ensemble of `K` regression trees:  
 
-$\hat{y}_i = \sum_{k=1}^{K} f_k(x_i)$
+`ŷ_i = Σ_{k=1}^{K} f_k(x_i)`,  
 
-where $f_k(x)$ represents the $k^{th}$ regression tree.
+where `f_k(x)` represents the `k`th regression tree.  
 
 ### **Objective Function**  
-XGBoost optimizes the following objective function:
+XGBoost optimizes the following objective function:  
 
-$\mathcal{L}(\Theta) = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{k=1}^{K} \Omega(f_k)$
+`L(Θ) = Σ_{i=1}^{n} l(y_i, ŷ_i) + Σ_{k=1}^{K} Ω(f_k)`,  
 
 where:  
-- $l(y_i, \hat{y}_i)$ is a differentiable convex loss function (e.g., Mean Squared Error).  
-- $\Omega(f_k)$ is a regularization term to prevent overfitting.  
+- `l(y_i, ŷ_i)` is a differentiable convex loss function (e.g., Mean Squared Error).  
+- `Ω(f_k)` is a regularization term to prevent overfitting.  
 
 #### **Loss Function (Squared Error for Regression)**  
-For regression, the most common loss function is the squared error:
+For regression, the most common loss function is the squared error:  
 
-$l(y_i, \hat{y}_i) = (y_i - \hat{y}_i)^2$
+`l(y_i, ŷ_i) = (y_i - ŷ_i)^2`,  
 
-which leads to gradient boosting minimizing:
+which leads to gradient boosting minimizing:  
 
-$\sum_{i=1}^{n} (y_i - \hat{y}_i)^2 + \sum_{k=1}^{K} \Omega(f_k)$
+`Σ_{i=1}^{n} (y_i - ŷ_i)^2 + Σ_{k=1}^{K} Ω(f_k)`.  
 
 #### **Regularization Term**  
-To control model complexity, XGBoost includes a regularization term:
+To control model complexity, XGBoost includes a regularization term:  
 
-$\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j} w_j^2$
+`Ω(f) = γT + (1/2) λ Σ_{j} w_j^2`,  
 
 where:  
-- $T$ is the number of leaf nodes in the tree.  
-- $w_j$ is the weight of leaf $j$.  
-- $\gamma$ and $\lambda$ are regularization parameters.  
+- `T` is the number of leaf nodes in the tree.  
+- `w_j` is the weight of leaf `j`.  
+- `γ` and `λ` are regularization parameters.  
 
 ### **Tree Growth & Optimization**  
-At each iteration, a new tree is added to the model to minimize residuals. The weights of the tree are computed using the second-order Taylor expansion:
+At each iteration, a new tree is added to the model to minimize residuals. The weights of the tree are computed using the second-order Taylor expansion:  
 
-$g_i = \frac{\partial l(y_i, \hat{y}_i)}{\partial \hat{y}_i}, \quad h_i = \frac{\partial^2 l(y_i, \hat{y}_i)}{\partial \hat{y}_i^2}$
+`g_i = ∂ l(y_i, ŷ_i) / ∂ ŷ_i,`  
+`h_i = ∂² l(y_i, ŷ_i) / ∂ ŷ_i²,`  
 
 where:  
-- $g_i$ is the gradient (first derivative of loss).  
-- $h_i$ is the Hessian (second derivative of loss).  
+- `g_i` is the gradient (first derivative of loss).  
+- `h_i` is the Hessian (second derivative of loss).  
 
-For each leaf $j$, the optimal weight $w_j$ is given by:
+For each leaf `j`, the optimal weight `w_j` is given by:  
 
-$w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}$
+`w_j* = - (Σ_{i ∈ I_j} g_i) / (Σ_{i ∈ I_j} h_i + λ)`,  
 
-where $I_j$ represents the set of samples in leaf $j$.
+where `I_j` represents the set of samples in leaf `j`.  
 
 ### **Final Prediction**  
-The final prediction is computed as:
+The final prediction is computed as:  
 
-$\hat{y}_i = F_{K}(x_i) = F_{K-1}(x_i) + f_K(x_i)$
+`ŷ_i = F_K(x_i) = F_{K-1}(x_i) + f_K(x_i)`,  
 
-where $F_K(x)$ is the cumulative model up to the $K^{th}$ tree.
+where `F_K(x)` is the cumulative model up to the `K`th tree.  
 
 ## **Hyperparameters of `XGBRegressor`**  
 Key hyperparameters include:  
 - `n_estimators`: Number of trees.  
-- `learning_rate` ($\eta$): Step size shrinkage.  
+- `learning_rate` (`η`): Step size shrinkage.  
 - `max_depth`: Maximum depth of trees.  
 - `lambda`: L2 regularization term.  
 - `gamma`: Minimum loss reduction for a split.  
 - `subsample`: Fraction of samples used per tree.  
 - `colsample_bytree`: Fraction of features used per tree.  
+
+## **Conclusion**  
+`XGBRegressor` is a powerful and efficient gradient boosting algorithm designed for regression tasks. It minimizes a loss function using additive tree models while incorporating regularization for better generalization.  
+
+---
+
+This version should now be fully compatible with GitHub Markdown preview. Let me know if you need any tweaks! 🚀
 
 ## **Conclusion**  
 `XGBRegressor` is a powerful and efficient gradient boosting algorithm designed for regression tasks. It minimizes a loss function using additive tree models while incorporating regularization for better generalization.  
